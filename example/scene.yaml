@@ -1,0 +1,101 @@
+import: https://mapzen.com/carto/walkabout-style/2/walkabout-style.yaml
+
+global:
+    _highlight: false
+
+styles:
+    _alpha_polygons:
+        base: polygons
+        blend: multiply
+    _dashed_lines:
+        base: lines
+        dash: [3, 1]
+        dash_background_color: rgb(149, 188, 141)
+
+sources:
+    _nps_boundary:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/rfriberg/684645c22f495b4a46f29fb312b6d268/raw/843ed38a3920ed199082636fe198ba995f5cfc04/san_juan_nhp.geojson
+
+    _nps_geology:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/rfriberg/3c09fe3afd642224da7cd70aff1c1e70/raw/1f1df59f4cb4e82d7ea23452c789bc99c299a5cb/san_juan_nhp_geology.geojson
+        generate_label_centroids: true
+
+layers:
+    _national_park:
+        data: { source: _nps_boundary }
+        draw:
+            _dashed_lines:
+                width: [[8, 0.5px], [18, 5px]]
+                color: '#518946'
+                order: global.sdk_order_over_everything_but_text_1
+
+    _geology:
+        data: { source: _nps_geology }
+        filter:
+            all:
+                - { $zoom: { min: 10 } }
+                - not: { GLG_SYM: water }
+        draw:
+            _alpha_polygons:
+                interactive: true
+                order: global.sdk_order_over_everything_but_text_0
+                color: |
+                    function() {
+                        // Note: this is a block of JavaScript so we can use JS comment syntax
+                        var category = feature.GLG_SYM;
+                        var color = category == 'Qa'       ? '#FFF79A' :
+                                    category == 'Qb'       ? '#FFF46E' :
+                                    category == 'Qd'       ? '#fff377' :
+                                    category == 'Qf'       ? '#dddddd' :
+                                    category == 'Qp'       ? '#EAC88D' :
+                                    category == 'Qgdm'     ? '#FCBB62' :
+                                    category == 'Qgdm(es)' ? '#FEE9BB' :
+                                    category == 'Qgdm(e)'  ? '#E8A121' :
+                                    category == 'Qgom(e)'  ? '#EAB564' :
+                                    category == 'Qgom'     ? '#FECE7A' :
+                                    category == 'Qgd'      ? '#FEDDA3' :
+                                    category == 'Qgt'      ? '#FCBB62' :
+                                    category == 'KJmm(c)'  ? '#86C879' :
+                                    category == 'KJm(ll)'  ? '#9FD08A' :
+                                    category == 'JTRmc(o)' ? '#27BB9D' :
+                                    category == 'TRn'      ? '#ED028C' :
+                                    category == 'TRPMv'    ? '#F172AC' :
+                                    category == 'TRPv'     ? '#F499C2' :
+                                    category == 'PDmt'     ? '#40C7F4' :
+                                    category == 'pPsh'     ? '#9BA5BE' :
+                                    category == 'pDi'      ? '#848FC7' :
+                                    category == 'pDit(t)'  ? '#B28ABF' : 
+                                    '#000';
+
+                        return color;
+                    }
+
+        _geology_labels:
+          filter: { label_placement: true,  $zoom: { min: 13 } }
+          draw:
+              text:
+                  text_source: GLG_SYM
+                  font:
+                      fill: rgba(130, 84, 41, 0.9)
+                      size: [[13, 10px], [20, 24px]]
+                      weight: bold
+                      stroke:
+                          color: rgba(242, 218, 193, 0.3)
+                          width: 3
+        
+        _geology_highlight:
+            filter: { GLG_SYM: global._highlight }
+            draw:
+                lines:
+                    width: 2px
+                    color: yellow
+                    order: global.sdk_order_over_everything_but_text_2
+
+    # Override Walkabout's layers
+    landuse:
+        visible: false
+    roads:
+        minor_road:
+            visible: false
