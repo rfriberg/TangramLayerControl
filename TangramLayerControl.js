@@ -50,7 +50,6 @@ var TangramLayerControl = L.Control.extend({
     } else {
       L.DomUtil.removeClass(this._form, 'leaflet-control-layers-scrollbar');
     }
-    //this._checkDisabledLayers();
     return this;
   },
 
@@ -201,7 +200,15 @@ var TangramLayerControl = L.Control.extend({
       return layersObj[layer_name]
     }
 
-    // TODO add handling of sublayers
+    // Iterate through layers to find possible sublayer (only looks 1 level deep)
+    for (let layer in layersObj) {
+
+      if (layersObj[layer].hasOwnProperty(layer_name)) {
+        return layersObj[layer][layer_name]
+      }
+    }
+
+    // TODO handle additionally nested sublayers?
     console.log("Error: Layer not found");
   },
 

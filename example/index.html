@@ -28,11 +28,15 @@
 
       var tangramLayers = {
           "Geology": '_geology',
+          "Geology Labels (sublayer)": '_geology_labels',
           "National Park": '_national_park',
-          "Roads": 'roads'
+          "Roads": 'roads',
       };
       L.control.tangramLayerControl(tangramLayers).addTo(map);
 
+      L.Mapzen.hash({
+        map: map
+      });
     </script>
   </body>
 </html>
